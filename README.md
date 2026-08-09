@@ -11,7 +11,6 @@
   <img alt="NumPy" src="https://img.shields.io/badge/NumPy-1.26-013243?style=flat-square&logo=numpy&logoColor=white">
   <img alt="Streamlit" src="https://img.shields.io/badge/Streamlit-1.38-FF4B4B?style=flat-square&logo=streamlit&logoColor=white">
   <img alt="Plotly" src="https://img.shields.io/badge/Plotly-5.24-3F4F75?style=flat-square&logo=plotly&logoColor=white">
-  <img alt="License" src="https://img.shields.io/badge/License-MIT-green?style=flat-square">
 </p>
 
 <p align="center">
