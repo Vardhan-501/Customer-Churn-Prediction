@@ -26,15 +26,7 @@
 
 ## 🔗 Live Demo
 
-**🚀 [Try the app here](https://ibm-telco-churn-prediction.streamlit.app/)** — *(replace with your deployed Streamlit URL)*
-
-<p align="center">
-  <img src="https://your-screenshot-url-here.png" alt="App Screenshot" width="90%">
-</p>
-
-> *(Add a screenshot of your app here — drag an image into your GitHub repo's README editor, or upload it to the repo and link it.)*
-
----
+**🚀 [Try the app here](https://ibm-telco-churn-prediction.streamlit.app/)
 
 ## 📌 Overview
 
@@ -140,7 +132,7 @@ Or run through `Customer_Churn_Prediction.ipynb` step by step in Jupyter.
 ```bash
 streamlit run app.py
 ```
-Open the local URL Streamlit prints (usually `http://localhost:8501`).
+Open the local URL Streamlit prints.
 
 ---
 
@@ -153,8 +145,6 @@ Open the local URL Streamlit prints (usually `http://localhost:8501`).
 | Precision (Churn class) | ~0.65 |
 | Recall (Churn class) | ~0.70 |
 | F1-score (Churn class) | ~0.67 |
-
-*(Update these with your actual notebook output numbers.)*
 
 **Top predictive features:** Contract type, tenure, monthly charges, internet service type, and payment method.
 
@@ -188,10 +178,3 @@ Open the local URL Streamlit prints (usually `http://localhost:8501`).
 
 ---
 
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE) — free to use, modify, and share.
-
----
-
-<p align="center">Built as a learning project to demonstrate end-to-end ML workflow — from raw data to a deployed, interactive prediction app.</p>
