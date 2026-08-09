@@ -26,7 +26,7 @@
 
 ## 🔗 Live Demo
 
-**🚀 [Try the app here](https://your-app-name.streamlit.app)** — *(replace with your deployed Streamlit URL)*
+**🚀 [Try the app here](https://ibm-telco-churn-prediction.streamlit.app/)** — *(replace with your deployed Streamlit URL)*
 
 <p align="center">
   <img src="https://your-screenshot-url-here.png" alt="App Screenshot" width="90%">
