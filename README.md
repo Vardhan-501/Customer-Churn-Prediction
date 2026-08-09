@@ -176,14 +176,9 @@ Open the local URL Streamlit prints (usually `http://localhost:8501`).
 ## 👤 Author
 
 **Your Name**
-📧 your.email@example.com | 🔗 [LinkedIn](https://linkedin.com/in/your-profile) | 💻 [GitHub](https://github.com/your-username)
+📧 priyavardhanakula114433@gmail.com | 🔗 [LinkedIn](www.linkedin.com/in/priyavardhanakula) | 💻 [GitHub](https://github.com/Vardhan-501)
 
 ---
 
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE) — free to use, modify, and share.
-
----
 
 <p align="center">Built as a learning project to demonstrate end-to-end ML workflow — from raw data to a deployed, interactive prediction app.</p>
