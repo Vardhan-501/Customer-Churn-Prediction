@@ -176,7 +176,7 @@ Open the local URL Streamlit prints (usually `http://localhost:8501`).
 ## 👤 Author
 
 **Your Name**
-📧 priyavardhanakula114433@gmail.com | 🔗 [LinkedIn](www.linkedin.com/in/priyavardhanakula) | 💻 [GitHub](https://github.com/Vardhan-501)
+📧 priyavardhanakula114433@gmail.com | 🔗[linkdin](www.linkedin.com/in/priyavardhanakula) | 💻 [GitHub](https://github.com/Vardhan-501)
 
 ---
 
