@@ -147,7 +147,6 @@ Open the local URL Streamlit prints (usually `http://localhost:8501`).
 | Recall (Churn class) | ~0.70 |
 | F1-score (Churn class) | ~0.67 |
 
-*(Update these with your actual notebook output numbers.)*
 
 **Top predictive features:** Contract type, tenure, monthly charges, internet service type, and payment method.
 
