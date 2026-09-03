@@ -1,179 +1,222 @@
-# 📊 Telco Customer Churn Prediction
+# Customer Churn Prediction
 
-<p align="center">
-  <em>An end-to-end machine learning project that predicts customer churn risk using account and service data — trained, evaluated, and deployed as an interactive web app.</em>
-</p>
+An end-to-end machine-learning project that estimates telecom customer churn risk from account, service, contract, billing, and demographic information. The project combines exploratory analysis, reproducible preprocessing, model evaluation, feature analysis, and an interactive Streamlit application.
 
-<p align="center">
-  <img alt="Python" src="https://img.shields.io/badge/Python-3.10-3776AB?style=flat-square&logo=python&logoColor=white">
-  <img alt="scikit-learn" src="https://img.shields.io/badge/scikit--learn-1.5-F7931E?style=flat-square&logo=scikitlearn&logoColor=white">
-  <img alt="Pandas" src="https://img.shields.io/badge/Pandas-2.2-150458?style=flat-square&logo=pandas&logoColor=white">
-  <img alt="NumPy" src="https://img.shields.io/badge/NumPy-1.26-013243?style=flat-square&logo=numpy&logoColor=white">
-  <img alt="Streamlit" src="https://img.shields.io/badge/Streamlit-1.38-FF4B4B?style=flat-square&logo=streamlit&logoColor=white">
-  <img alt="Plotly" src="https://img.shields.io/badge/Plotly-5.24-3F4F75?style=flat-square&logo=plotly&logoColor=white">
-</p>
+[Launch the live Streamlit application](https://ibm-telco-churn-prediction.streamlit.app/)
 
-<p align="center">
-  <a href="#-live-demo"><b>Live Demo</b></a> •
-  <a href="#-features"><b>Features</b></a> •
-  <a href="#-tech-stack"><b>Tech Stack</b></a> •
-  <a href="#-installation--setup"><b>Setup</b></a> •
-  <a href="#-model-performance"><b>Model Performance</b></a>
-</p>
+## Business problem
 
----
+Customer churn reduces recurring revenue and increases acquisition pressure. A churn-risk model can help a telecom team prioritize retention investigations, provided that predictions are evaluated carefully and used with an explicit understanding of intervention costs.
 
-## 🔗 Live Demo
+This project answers two related questions:
 
-**🚀 [Try the app here](https://ibm-telco-churn-prediction.streamlit.app/)
+1. Which customer attributes are associated with churn in the available historical data?
+2. Can a classification model identify customers with elevated churn risk well enough to support targeted retention analysis?
 
-## 📌 Overview
+The model is a decision-support prototype. It does not prove that any feature causes churn, and predictions should not be used as the sole basis for customer treatment.
 
-Customer churn — when a customer stops using a company's service — directly impacts revenue, and acquiring a new customer typically costs far more than retaining an existing one. This project builds a machine learning pipeline that predicts **whether a telecom customer is likely to churn**, based on their account details, contract type, billing information, and subscribed services.
+## Project highlights
 
-The project covers the complete ML workflow:
-- Data cleaning and exploratory analysis on real-world, imperfect data
-- Multicollinearity analysis (VIF)
-- A trained, evaluated classification model
-- An interactive Streamlit dashboard for live predictions
-- Public deployment for anyone to try
+- Cleans real-world customer data, including numeric values stored as text.
+- Examines churn patterns across tenure, contracts, charges, services, and payment methods.
+- Checks multicollinearity using variance inflation factor analysis.
+- Uses a preprocessing-and-model pipeline to reduce train/test transformation leakage.
+- Handles class imbalance with class-weighted Random Forest classification.
+- Reports precision, recall, F1-score, confusion matrix, and ROC-AUC.
+- Persists the trained pipeline with `joblib`.
+- Provides an interactive Streamlit application with a churn-probability gauge.
+- Includes feature-importance visualization for global model interpretation.
 
----
+## Dataset
 
-## ✨ Features
+- **Dataset:** IBM Telco Customer Churn.
+- **File:** `WA_Fn-UseC_-Telco-Customer-Churn.csv`
+- **Records:** 7,043 customer records.
+- **Features:** 21 columns, including demographic, account, billing, contract, and service fields.
+- **Target:** `Churn`, indicating whether the customer left the service.
+- **Source:** [IBM Telco Customer Churn dataset](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)
 
-- 🔍 **Exploratory Data Analysis** — visualizes churn patterns across tenure, contract type, charges, and services
-- 📐 **Multicollinearity check (VIF)** — validates feature independence before modeling
-- 🤖 **Random Forest Classifier** — trained with class balancing to handle imbalanced churn data
-- 📊 **Model evaluation** — precision, recall, F1-score, ROC-AUC, confusion matrix, and feature importance
-- 🖥️ **Interactive dashboard** — enter a customer's details and get a live churn prediction with probability gauge
-- 📈 **Explainability** — shows the top factors driving each prediction
-- ☁️ **Deployed on Streamlit Cloud** — no installation needed to try it
+> Confirm the dataset license and attribution requirements before redistributing the dataset.
 
----
+## Analytical workflow
 
-## 🛠️ Tech Stack
+```text
+Raw data
+   ↓
+Data-quality checks and type conversion
+   ↓
+Exploratory data analysis
+   ↓
+Feature and target definition
+   ↓
+Stratified train/test split
+   ↓
+ColumnTransformer: scaling + one-hot encoding
+   ↓
+Class-weighted Random Forest pipeline
+   ↓
+Holdout evaluation and error analysis
+   ↓
+Persisted model
+   ↓
+Streamlit prediction application
+```
 
-| Category | Technology |
+The notebook is available at [`Customer_Churn_Project.ipynb`](Customer_Churn_Project.ipynb), and the application is available at [`app.py`](app.py).
+
+## Data preparation
+
+The workflow addresses the following data issues:
+
+- Converts `TotalCharges` from text to numeric values.
+- Handles blank or invalid numeric entries.
+- Separates the target variable from explanatory features.
+- Identifies numeric and categorical columns.
+- Applies scaling only within the modeling pipeline.
+- Applies one-hot encoding with unknown-category handling.
+- Uses stratification to preserve the churn proportion in the train and test sets.
+
+Document the exact missing-value treatment, row-removal count, and final feature list here after the final notebook run:
+
+| Preparation item | Verified result |
 |---|---|
-| **Language** | Python 3.10 |
-| **Data Manipulation** | Pandas, NumPy |
-| **Visualization (EDA)** | Matplotlib, Seaborn |
-| **Machine Learning** | scikit-learn (Pipeline, ColumnTransformer, RandomForestClassifier) |
-| **Statistical Analysis** | statsmodels (VIF / multicollinearity) |
-| **Model Persistence** | joblib |
-| **Web App / Dashboard** | Streamlit |
-| **Interactive Charts (app)** | Plotly |
-| **Development** | Jupyter Notebook, VS Code |
-| **Version Control & Hosting** | Git, GitHub |
-| **Deployment** | Streamlit Community Cloud |
+| Rows before cleaning | **[X,XXX]** |
+| Rows after cleaning | **[X,XXX]** |
+| Blank `TotalCharges` values | **[XXX]** |
+| Churn rate | **[XX.XX%]** |
+| Numeric features | **[List or link to notebook]** |
+| Categorical features | **[List or link to notebook]** |
 
----
+## Modeling approach
 
-## 📂 Dataset
+The current model uses a `scikit-learn` `Pipeline` containing a `ColumnTransformer` and a class-weighted `RandomForestClassifier`. This keeps preprocessing and prediction together and makes the persisted model easier to reuse in the application.
 
-**Source:** [IBM Telco Customer Churn](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) (Kaggle)
+Recommended experiment table for the next version:
 
-- **7,043** customer records, **21** features
-- Includes demographic info (gender, senior citizen status, partner/dependents), account info (tenure, contract, billing), subscribed services (internet, phone, streaming, security add-ons), and the target label (`Churn`: Yes/No)
-- Real-world data quality issues handled in this project: `TotalCharges` stored as text with blank values, class imbalance (~27% churn rate)
+| Model | Validation method | ROC-AUC | PR-AUC | Recall | F1-score | Notes |
+|---|---|---:|---:|---:|---:|---|
+| Majority-class baseline | Stratified cross-validation | [ ] | [ ] | [ ] | [ ] | Reference point |
+| Logistic regression | Stratified cross-validation | [ ] | [ ] | [ ] | [ ] | Interpretable baseline |
+| Random Forest | Stratified cross-validation | [ ] | [ ] | [ ] | [ ] | Current model |
+| Gradient boosting | Stratified cross-validation | [ ] | [ ] | [ ] | [ ] | Candidate comparison |
 
----
+The current notebook reports a stratified 80/20 train/test split and a Random Forest evaluation. For a stronger production-oriented result, add repeated stratified cross-validation, PR-AUC, score variability, threshold analysis, calibration, and a comparison against a simple baseline.
 
-## 📁 Project Structure
+## Model performance
 
+The current README reports the following approximate holdout results. Re-run the notebook and replace these values with exact outputs before using them in applications:
+
+| Metric | Current reported result | Verified final result |
+|---|---:|---:|
+| ROC-AUC | ~0.84 | **[ ]** |
+| Accuracy | ~0.80 | **[ ]** |
+| Churn precision | ~0.65 | **[ ]** |
+| Churn recall | ~0.70 | **[ ]** |
+| Churn F1-score | ~0.67 | **[ ]** |
+| PR-AUC | Not currently reported | **[ ]** |
+
+Because churn is an imbalanced classification problem, accuracy should not be treated as the primary metric. The preferred metric depends on the business cost of missing a likely churner versus contacting a customer who would have stayed.
+
+## Error analysis and decision threshold
+
+The application currently uses the model’s predicted class to display a high- or low-risk label. A stronger business version should document:
+
+- The probability threshold used for intervention.
+- The expected cost of false negatives.
+- The expected cost of false positives.
+- The retention capacity available to the business.
+- Precision and recall at the chosen threshold.
+- Calibration quality of predicted probabilities.
+
+Add a confusion-matrix interpretation here:
+
+> At the selected threshold of **[threshold]**, the model identifies **[X%]** of observed churners while generating **[Y%]** false-positive contacts. This threshold was selected because **[business rationale]**.
+
+## Explainability
+
+The app displays global Random Forest feature importance. These values describe how the fitted model uses features overall; they do not prove that a feature causes churn and they do not constitute a complete explanation for every individual prediction.
+
+Recommended next steps are permutation importance, partial-dependence or accumulated-local-effect plots, and SHAP explanations for individual predictions. Add appropriate caveats around correlation, data quality, and fairness when publishing explanations.
+
+## Streamlit application
+
+The application accepts customer information through a sidebar form and returns:
+
+- Predicted churn class.
+- Churn probability.
+- A probability gauge.
+- An input summary.
+- Global top-feature importance visualization.
+- A plain-language explanation of the risk label.
+
+The app code is in [`app.py`](app.py). The persisted pipeline is in `churn_model.pkl`.
+
+## Repository structure
+
+```text
+Customer-Churn-Prediction/
+├── .gitignore
+├── Customer_Churn_Project.ipynb
+├── README.md
+├── WA_Fn-UseC_-Telco-Customer-Churn.csv
+├── app.py
+├── churn_model.pkl
+└── requirements.txt
 ```
-telco-churn-prediction/
-├── .streamlit/
-│   └── config.toml                     # Dashboard theme (dark/green)
-├── data/
-│   └── WA_Fn-UseC_-Telco-Customer-Churn.csv
-├── Customer_Churn_Prediction.ipynb     # Full analysis: EDA → cleaning → VIF → modeling → prediction
-├── train_model.py                       # Standalone training script
-├── app.py                               # Streamlit dashboard app
-├── churn_model.pkl                      # Saved trained pipeline (preprocessing + model)
-├── requirements.txt
-└── README.md
-```
 
----
+## How to run locally
 
-## ⚙️ Installation & Setup
-
-### 1. Clone the repository
 ```bash
-git clone https://github.com/Vardhan-501/telco-churn-prediction.git
-cd telco-churn-prediction
-```
-
-### 2. Create a virtual environment
-```bash
+git clone https://github.com/Vardhan-501/Customer-Churn-Prediction.git
+cd Customer-Churn-Prediction
 python -m venv .venv
-.venv\Scripts\activate        # Windows
-source .venv/bin/activate     # macOS/Linux
-```
 
-### 3. Install dependencies
-```bash
+# Windows
+.venv\Scripts\activate
+
+# macOS/Linux
+source .venv/bin/activate
+
 pip install -r requirements.txt
-```
-
-### 4. Get the dataset
-Download `WA_Fn-UseC_-Telco-Customer-Churn.csv` from [Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) and place it in the `data/` folder.
-
-### 5. Train the model *(optional — a pre-trained `churn_model.pkl` is already included)*
-```bash
-python train_model.py
-```
-Or run through `Customer_Churn_Prediction.ipynb` step by step in Jupyter.
-
-### 6. Run the app
-```bash
 streamlit run app.py
 ```
-Open the local URL Streamlit prints.
 
----
+Open the local URL shown by Streamlit. The current repository includes a pre-trained model artifact. If the model is retrained, document the training date, feature schema, library versions, evaluation split, and model hash or version.
 
-## 📊 Model Performance
+## Reproducibility checklist
 
-| Metric | Score |
-|---|---|
-| ROC-AUC | ~0.84 |
-| Accuracy | ~0.80 |
-| Precision (Churn class) | ~0.65 |
-| Recall (Churn class) | ~0.70 |
-| F1-score (Churn class) | ~0.67 |
+- [ ] Pin dependency versions in `requirements.txt`.
+- [ ] Document the Python version.
+- [ ] Record the random seed.
+- [ ] Add a standalone training script or clearly document the notebook training cells.
+- [ ] Save the exact feature list and target definition.
+- [ ] Report cross-validation results and the final test-set result separately.
+- [ ] Add input validation for missing, invalid, and out-of-range values.
+- [ ] Add batch CSV scoring for operational use cases.
+- [ ] Add a model card documenting intended use, limitations, and ethical considerations.
 
-**Top predictive features:** Contract type, tenure, monthly charges, internet service type, and payment method.
+## Limitations and responsible use
 
----
+This dataset represents historical customer behavior and may not reflect current products, prices, service quality, or customer populations. The model may encode historical patterns that are not appropriate for intervention decisions. It should not be used to deny service, penalize customers, or make decisions without human review.
 
-## 🧠 How Prediction Works
+The model reports association and predictive performance, not causation. Any retention intervention should be evaluated with a controlled experiment or another appropriate evaluation design.
 
-1. Customer details are collected through the sidebar form
-2. Inputs are passed through a saved `scikit-learn` pipeline that automatically:
-   - Scales numeric features (`StandardScaler`)
-   - One-hot encodes categorical features (`OneHotEncoder`)
-3. The `RandomForestClassifier` outputs a churn probability
-4. The dashboard displays the risk level, probability gauge, and the top features influencing that prediction
+## Future improvements
 
----
+- Compare logistic regression, gradient boosting, and other baseline models.
+- Add stratified cross-validation and PR-AUC.
+- Tune and justify the intervention threshold.
+- Calibrate predicted probabilities.
+- Add SHAP or permutation-based explanations.
+- Add batch scoring and input validation.
+- Add model monitoring for feature drift and performance decay.
+- Add fairness checks across relevant customer groups where legally and ethically appropriate.
+- Track model versions and experiments with MLflow.
 
-## 🚀 Future Improvements
+## Author
 
-- [ ] Compare against XGBoost / LightGBM / Logistic Regression
-- [ ] Add SHAP values for per-prediction explainability
-- [ ] Support batch predictions via CSV upload
-- [ ] Add model monitoring / retraining pipeline
-- [ ] Track experiments with MLflow
+**Priyavardhan Akula**
 
----
-
-## 👤 Author
-
-**Priya Vardhan Akula**
-📧 priyavardhanakula114433@gmail.com | 🔗 [LinkedIn](https://www.linkedin.com/in/priyavardhanakula) | 💻 [GitHub](https://github.com/Vardhan-501)
-
----
-
+- Email: [priyavardhanakula114433@gmail.com](mailto:priyavardhanakula114433@gmail.com)
+- LinkedIn: [linkedin.com/in/priyavardhanakula](https://www.linkedin.com/in/priyavardhanakula)
+- GitHub: [github.com/Vardhan-501](https://github.com/Vardhan-501)
