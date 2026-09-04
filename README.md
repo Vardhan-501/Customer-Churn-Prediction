@@ -1,217 +1,197 @@
 # Customer Churn Prediction
 
-An end-to-end machine-learning project that estimates telecom customer churn risk from account, service, contract, billing, and demographic information. The project combines exploratory analysis, reproducible preprocessing, model evaluation, feature analysis, and an interactive Streamlit application.
+An end-to-end **telecom customer churn classification project** built with Python and scikit-learn. The repository combines exploratory data analysis, a reproducible preprocessing-and-modeling workflow, model interpretation, retention-oriented recommendations, monitoring utilities, and a Streamlit decision-support interface.
 
-[Launch the live Streamlit application](https://ibm-telco-churn-prediction.streamlit.app/)
+> **Project status:** The repository contains the notebook, source modules, dataset, serialized model, and tests. The current checked-in application imports modules from `src/` and loads the model from `models/`, while those files are currently stored at the repository root. The project therefore needs that path alignment before the Streamlit app and tests can be run directly from a fresh clone.
 
-## Business problem
+[Open the deployed Streamlit application](https://ibm-telco-churn-prediction.streamlit.app/)
 
-Customer churn reduces recurring revenue and increases acquisition pressure. A churn-risk model can help a telecom team prioritize retention investigations, provided that predictions are evaluated carefully and used with an explicit understanding of intervention costs.
+## Business objective
 
-This project answers two related questions:
+Telecom providers need a practical way to identify customers who may be at elevated risk of leaving. This project estimates churn probability from customer demographics, account history, subscribed services, contract details, billing information, and payment method. The output is intended to help analysts prioritize **retention investigations** rather than automate customer treatment.
 
-1. Which customer attributes are associated with churn in the available historical data?
-2. Can a classification model identify customers with elevated churn risk well enough to support targeted retention analysis?
+The project addresses two questions:
 
-The model is a decision-support prototype. It does not prove that any feature causes churn, and predictions should not be used as the sole basis for customer treatment.
+1. Which customer characteristics are associated with churn in the available historical data?
+2. Can a supervised classification model distinguish customers who churned from customers who stayed well enough to support targeted analysis?
 
-## Project highlights
+The model is a **decision-support prototype**. Its feature relationships are predictive associations, not evidence that a feature causes churn. Any retention action should be reviewed by a person and evaluated with an appropriate business experiment.
 
-- Cleans real-world customer data, including numeric values stored as text.
-- Examines churn patterns across tenure, contracts, charges, services, and payment methods.
-- Checks multicollinearity using variance inflation factor analysis.
-- Uses a preprocessing-and-model pipeline to reduce train/test transformation leakage.
-- Handles class imbalance with class-weighted Random Forest classification.
-- Reports precision, recall, F1-score, confusion matrix, and ROC-AUC.
-- Persists the trained pipeline with `joblib`.
-- Provides an interactive Streamlit application with a churn-probability gauge.
-- Includes feature-importance visualization for global model interpretation.
+## Key capabilities
+
+| Capability | Implementation in this repository |
+|---|---|
+| Data preparation | Duplicate removal, numeric conversion for `TotalCharges`, target separation, and numeric/categorical feature discovery. |
+| Exploratory analysis | Notebook-based analysis of customer tenure, contracts, services, charges, payment methods, churn patterns, and multicollinearity. |
+| Preprocessing | `ColumnTransformer` with `StandardScaler` for numeric columns and `OneHotEncoder(handle_unknown="ignore")` for categorical columns. |
+| Classification | Class-weighted `RandomForestClassifier` with 300 trees, `max_depth=10`, and `random_state=42`. |
+| Evaluation | Holdout classification report, confusion matrix, ROC-AUC, and reusable cross-validation and threshold-analysis utilities. |
+| Prediction | Single-customer validation, churn probability, predicted class, and provisional Low/Medium/High risk bands. |
+| Explainability | Global feature-importance output and customer-level supporting explanations. |
+| Decision support | Rule-based retention recommendations, customer segmentation, AI-summary integration, and data-quality/drift utilities. |
+| Interface | Streamlit form with prediction, explanation, recommended actions, segment, performance, AI-summary, and monitoring views. |
 
 ## Dataset
 
-- **Dataset:** IBM Telco Customer Churn.
-- **File:** `WA_Fn-UseC_-Telco-Customer-Churn.csv`
-- **Records:** 7,043 customer records.
-- **Features:** 21 columns, including demographic, account, billing, contract, and service fields.
-- **Target:** `Churn`, indicating whether the customer left the service.
-- **Source:** [IBM Telco Customer Churn dataset](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)
+The project uses the **IBM Telco Customer Churn** dataset, distributed as `WA_Fn-UseC_-Telco-Customer-Churn.csv`.[^1] The file contains **7,043 customer records** and 21 columns, including the `Churn` target, 19 model features, and the `customerID` identifier. The notebook uses the 19 explanatory columns after separating the target and excluding the identifier from the model inputs.
 
-> Confirm the dataset license and attribution requirements before redistributing the dataset.
+| Dataset element | Description |
+|---|---|
+| Target | `Churn`, encoded as the observed outcome `Yes` or `No` in the source data and converted for classification in the notebook. |
+| Numeric features | `SeniorCitizen`, `tenure`, `MonthlyCharges`, and `TotalCharges`. |
+| Categorical features | Gender, household attributes, phone and internet services, add-on services, contract, billing, and payment method. |
+| Identifier | `customerID`; retained as an identifier in the raw data but not used as a predictive feature. |
+| Source file | [`WA_Fn-UseC_-Telco-Customer-Churn.csv`](WA_Fn-UseC_-Telco-Customer-Churn.csv) |
 
-## Analytical workflow
+Please review the source dataset’s licensing and attribution requirements before redistributing the CSV.[^1]
+
+## Analytical and modeling workflow
 
 ```text
-Raw data
-   ↓
-Data-quality checks and type conversion
-   ↓
-Exploratory data analysis
-   ↓
-Feature and target definition
-   ↓
-Stratified train/test split
-   ↓
+Raw CSV
+  ↓
+Remove duplicate rows and convert data types
+  ↓
+Explore churn patterns and data quality
+  ↓
+Separate 19 features from the Churn target
+  ↓
+Stratified 80/20 train-test split (random_state=42)
+  ↓
 ColumnTransformer: scaling + one-hot encoding
-   ↓
+  ↓
 Class-weighted Random Forest pipeline
-   ↓
-Holdout evaluation and error analysis
-   ↓
-Persisted model
-   ↓
-Streamlit prediction application
+  ↓
+Holdout evaluation and threshold analysis
+  ↓
+Serialize the fitted pipeline with joblib
+  ↓
+Use the pipeline for interactive Streamlit predictions
 ```
 
-The notebook is available at [`Customer_Churn_Project.ipynb`](Customer_Churn_Project.ipynb), and the application is available at [`app.py`](app.py).
+The modeling pipeline keeps preprocessing and classification together. This is important because the same transformations used during training must be applied consistently when a new customer is scored. The stratified split preserves the relative class distribution between the training and test sets; the notebook records **5,634 training rows** and **1,409 test rows**.
 
-## Data preparation
+## Model and evaluation
 
-The workflow addresses the following data issues:
+The notebook trains the following estimator:
 
-- Converts `TotalCharges` from text to numeric values.
-- Handles blank or invalid numeric entries.
-- Separates the target variable from explanatory features.
-- Identifies numeric and categorical columns.
-- Applies scaling only within the modeling pipeline.
-- Applies one-hot encoding with unknown-category handling.
-- Uses stratification to preserve the churn proportion in the train and test sets.
+```python
+RandomForestClassifier(
+    n_estimators=300,
+    max_depth=10,
+    random_state=42,
+    class_weight="balanced",
+)
+```
 
-Document the exact missing-value treatment, row-removal count, and final feature list here after the final notebook run:
+The executed notebook reports the following **single stratified holdout evaluation**. These values describe the notebook run preserved in the repository; they are not cross-validation estimates and may change if the data, dependencies, or training procedure changes.
 
-| Preparation item | Verified result |
-|---|---|
-| Rows before cleaning | **[X,XXX]** |
-| Rows after cleaning | **[X,XXX]** |
-| Blank `TotalCharges` values | **[XXX]** |
-| Churn rate | **[XX.XX%]** |
-| Numeric features | **[List or link to notebook]** |
-| Categorical features | **[List or link to notebook]** |
+| Class or metric | Precision | Recall | F1-score | Support |
+|---|---:|---:|---:|---:|
+| No Churn | 0.89 | 0.79 | 0.84 | 1,035 |
+| Churn | 0.55 | 0.72 | 0.63 | 374 |
+| Accuracy | — | — | — | 0.77 |
+| Macro average | 0.72 | 0.75 | 0.73 | 1,409 |
+| Weighted average | 0.80 | 0.77 | 0.78 | 1,409 |
+| ROC-AUC | — | — | — | **0.8391** |
 
-## Modeling approach
+Because churn is not evenly distributed across the two classes, accuracy alone is not an adequate success criterion. The appropriate operating threshold depends on the relative cost of missing a likely churner, contacting a customer who would have stayed, and the retention team’s available capacity. The helper functions in `metrics.py` and `monitoring.py` support ROC-AUC, PR-AUC, precision, recall, F1-score, confusion-matrix counts, and threshold comparisons.
 
-The current model uses a `scikit-learn` `Pipeline` containing a `ColumnTransformer` and a class-weighted `RandomForestClassifier`. This keeps preprocessing and prediction together and makes the persisted model easier to reuse in the application.
+## Prediction and risk bands
 
-Recommended experiment table for the next version:
+`predict.py` validates that an input contains the expected fields, checks numeric ranges, rejects missing or invalid values, applies the serialized pipeline, and returns a prediction with a churn probability. The current provisional risk-band mapping is:
 
-| Model | Validation method | ROC-AUC | PR-AUC | Recall | F1-score | Notes |
-|---|---|---:|---:|---:|---:|---|
-| Majority-class baseline | Stratified cross-validation | [ ] | [ ] | [ ] | [ ] | Reference point |
-| Logistic regression | Stratified cross-validation | [ ] | [ ] | [ ] | [ ] | Interpretable baseline |
-| Random Forest | Stratified cross-validation | [ ] | [ ] | [ ] | [ ] | Current model |
-| Gradient boosting | Stratified cross-validation | [ ] | [ ] | [ ] | [ ] | Candidate comparison |
+| Probability | Risk band |
+|---:|---|
+| `< 0.30` | Low |
+| `0.30` to `< 0.60` | Medium |
+| `≥ 0.60` | High |
 
-The current notebook reports a stratified 80/20 train/test split and a Random Forest evaluation. For a stronger production-oriented result, add repeated stratified cross-validation, PR-AUC, score variability, threshold analysis, calibration, and a comparison against a simple baseline.
-
-## Model performance
-
-The current README reports the following approximate holdout results. Re-run the notebook and replace these values with exact outputs before using them in applications:
-
-| Metric | Current reported result | Verified final result |
-|---|---:|---:|
-| ROC-AUC | ~0.84 | **[ ]** |
-| Accuracy | ~0.80 | **[ ]** |
-| Churn precision | ~0.65 | **[ ]** |
-| Churn recall | ~0.70 | **[ ]** |
-| Churn F1-score | ~0.67 | **[ ]** |
-| PR-AUC | Not currently reported | **[ ]** |
-
-Because churn is an imbalanced classification problem, accuracy should not be treated as the primary metric. The preferred metric depends on the business cost of missing a likely churner versus contacting a customer who would have stayed.
-
-## Error analysis and decision threshold
-
-The application currently uses the model’s predicted class to display a high- or low-risk label. A stronger business version should document:
-
-- The probability threshold used for intervention.
-- The expected cost of false negatives.
-- The expected cost of false positives.
-- The retention capacity available to the business.
-- Precision and recall at the chosen threshold.
-- Calibration quality of predicted probabilities.
-
-Add a confusion-matrix interpretation here:
-
-> At the selected threshold of **[threshold]**, the model identifies **[X%]** of observed churners while generating **[Y%]** false-positive contacts. This threshold was selected because **[business rationale]**.
-
-## Explainability
-
-The app displays global Random Forest feature importance. These values describe how the fitted model uses features overall; they do not prove that a feature causes churn and they do not constitute a complete explanation for every individual prediction.
-
-Recommended next steps are permutation importance, partial-dependence or accumulated-local-effect plots, and SHAP explanations for individual predictions. Add appropriate caveats around correlation, data quality, and fairness when publishing explanations.
+These bands are presentation labels, not calibrated business policies. Before using them operationally, select and document a threshold using intervention cost, contact capacity, calibration quality, and performance on a temporally appropriate validation set.
 
 ## Streamlit application
 
-The application accepts customer information through a sidebar form and returns:
+The interface in `app.py` is designed as a retention-analysis workspace. It collects customer attributes through a sidebar form and is intended to provide:
 
-- Predicted churn class.
-- Churn probability.
-- A probability gauge.
-- An input summary.
-- Global top-feature importance visualization.
-- A plain-language explanation of the risk label.
+- An estimated churn probability and provisional risk band.
+- A predicted churn class.
+- A probability gauge and customer-input summary.
+- Supporting model-factor explanations.
+- Rule-based recommended retention investigation actions.
+- Customer segmentation and segment profiles.
+- Model-performance and threshold views.
+- An optional AI-generated business summary grounded in verified model facts.
+- Data-quality and numeric-drift monitoring views.
 
-The app code is in [`app.py`](app.py). The persisted pipeline is in `churn_model.pkl`.
+The optional AI-summary layer checks for a local Ollama service first and then an explicitly configured OpenAI-compatible key. It is designed to summarize verified facts rather than invent customer history, causal explanations, or unverified metrics. The model output should remain subordinate to the fitted churn pipeline and human review.
 
 ## Repository structure
 
 ```text
 Customer-Churn-Prediction/
-├── .gitignore
-├── Customer_Churn_Project.ipynb
-├── README.md
-├── WA_Fn-UseC_-Telco-Customer-Churn.csv
-├── app.py
-├── churn_model.pkl
-└── requirements.txt
+├── Customer_Churn_Project.ipynb                 # EDA, training, and evaluation notebook
+├── WA_Fn-UseC_-Telco-Customer-Churn.csv         # Source dataset
+├── churn_model.pkl                              # Serialized fitted scikit-learn pipeline
+├── app.py                                       # Streamlit application
+├── predict.py                                   # Input validation and single-customer scoring
+├── metrics.py                                   # Dataset loading, model comparison, thresholds
+├── explain.py                                   # Prediction explanation utilities
+├── recommendations.py                           # Rule-based retention recommendations
+├── segmentation.py                              # Customer segmentation utilities
+├── monitoring.py                                # Data-quality, drift, and labeled metrics
+├── ai_summary.py                                # Optional grounded summary generation
+├── test_predict.py                              # Prediction validation tests
+├── test_explain_and_recommendations.py          # Explanation and recommendation tests
+├── test_segmentation_monitoring.py              # Segmentation and monitoring tests
+├── requirements.txt                             # Python dependencies
+└── README.md                                    # Project documentation
 ```
 
-## How to run locally
+## Local setup
+
+Create a virtual environment, install the dependencies, and launch Streamlit from the repository root:
 
 ```bash
 git clone https://github.com/Vardhan-501/Customer-Churn-Prediction.git
 cd Customer-Churn-Prediction
-python -m venv .venv
 
-# Windows
-.venv\Scripts\activate
+python -m venv .venv
 
 # macOS/Linux
 source .venv/bin/activate
+
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
 
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Open the local URL shown by Streamlit. The current repository includes a pre-trained model artifact. If the model is retrained, document the training date, feature schema, library versions, evaluation split, and model hash or version.
+Streamlit will print a local URL. If you want to reproduce the notebook, open `Customer_Churn_Project.ipynb` in Jupyter after installing the same dependencies.
 
-## Reproducibility checklist
+### Path alignment required in the current snapshot
 
-- [ ] Pin dependency versions in `requirements.txt`.
-- [ ] Document the Python version.
-- [ ] Record the random seed.
-- [ ] Add a standalone training script or clearly document the notebook training cells.
-- [ ] Save the exact feature list and target definition.
-- [ ] Report cross-validation results and the final test-set result separately.
-- [ ] Add input validation for missing, invalid, and out-of-range values.
-- [ ] Add batch CSV scoring for operational use cases.
-- [ ] Add a model card documenting intended use, limitations, and ethical considerations.
+The checked-in `app.py`, `predict.py`, and test modules refer to package paths such as `src.predict` and to `models/churn_model.pkl`, but the corresponding Python files and `churn_model.pkl` are currently at the repository root. Before running the app or tests from a clean clone, either move the modules into a `src/` package and the model into `models/`, or update those imports and paths consistently. Do not mix both layouts, because the serialized pipeline and application must resolve to the same model artifact.
+
+## Testing
+
+After resolving the path layout and installing the dependencies, run:
+
+```bash
+pytest -q
+```
+
+The tests cover input validation and prediction output, explanation and recommendation behavior, segmentation, data-quality checks, drift calculations, and labeled performance metrics. The current repository environment was inspected without changing application code; `pytest` was not installed in the analysis environment, so a clean test run should be performed after dependency installation.
 
 ## Limitations and responsible use
 
-This dataset represents historical customer behavior and may not reflect current products, prices, service quality, or customer populations. The model may encode historical patterns that are not appropriate for intervention decisions. It should not be used to deny service, penalize customers, or make decisions without human review.
+This dataset is historical and may not represent current products, prices, service quality, customer populations, or retention programs. A model trained on it can reproduce historical patterns and may perform differently on new populations or future periods. Predicted probabilities should be calibrated and monitored before being interpreted as reliable probabilities in a live process.
 
-The model reports association and predictive performance, not causation. Any retention intervention should be evaluated with a controlled experiment or another appropriate evaluation design.
+Feature importance and individual explanations describe how the fitted model uses patterns in the available data. They do not establish causality, explain every customer perfectly, or justify a particular discount or intervention. The model should not be used to deny service, penalize customers, or make high-impact decisions without human review and appropriate fairness checks.
 
-## Future improvements
+## Recommended next steps
 
-- Compare logistic regression, gradient boosting, and other baseline models.
-- Add stratified cross-validation and PR-AUC.
-- Tune and justify the intervention threshold.
-- Calibrate predicted probabilities.
-- Add SHAP or permutation-based explanations.
-- Add batch scoring and input validation.
-- Add model monitoring for feature drift and performance decay.
-- Add fairness checks across relevant customer groups where legally and ethically appropriate.
-- Track model versions and experiments with MLflow.
+The next production-oriented iteration should compare the Random Forest with an interpretable baseline such as logistic regression, use repeated stratified cross-validation, report PR-AUC and score variability, evaluate probability calibration, and select an intervention threshold using an explicit cost-capacity framework. It should also add batch scoring, stronger schema validation, model versioning, feature-drift alerts, temporal validation, fairness analysis where appropriate, and a model card documenting intended use and known limitations.
 
 ## Author
 
@@ -219,4 +199,12 @@ The model reports association and predictive performance, not causation. Any ret
 
 - Email: [priyavardhanakula114433@gmail.com](mailto:priyavardhanakula114433@gmail.com)
 - LinkedIn: [linkedin.com/in/priyavardhanakula](https://www.linkedin.com/in/priyavardhanakula)
-- GitHub: [github.com/Vardhan-501](https://github.com/Vardhan-501)
+- GitHub: [Vardhan-501](https://github.com/Vardhan-501)
+
+## References
+
+[^1]: [IBM Telco Customer Churn dataset — Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)
+
+---
+
+*Documentation rewritten after inspecting the repository contents, notebook outputs, application code, supporting modules, and tests.*
