@@ -2,7 +2,7 @@
 
 An end-to-end **telecom customer churn classification project** built with Python and scikit-learn. The repository combines exploratory data analysis, a reproducible preprocessing-and-modeling workflow, model interpretation, retention-oriented recommendations, monitoring utilities, and a Streamlit decision-support interface.
 
-> **Project status:** The repository contains the notebook, source modules, dataset, serialized model, and tests. The current checked-in application imports modules from `src/` and loads the model from `models/`, while those files are currently stored at the repository root. The project therefore needs that path alignment before the Streamlit app and tests can be run directly from a fresh clone.
+> **Project status:** The repository is organized for deployment: application modules are under `src/`, the dataset is under `data/`, and the serialized model is under `models/`.
 
 [Open the deployed Streamlit application](https://ibm-telco-churn-prediction.streamlit.app/)
 
@@ -130,16 +130,19 @@ The optional AI-summary layer checks for a local Ollama service first and then a
 ```text
 Customer-Churn-Prediction/
 ├── Customer_Churn_Project.ipynb                 # EDA, training, and evaluation notebook
-├── WA_Fn-UseC_-Telco-Customer-Churn.csv         # Source dataset
-├── churn_model.pkl                              # Serialized fitted scikit-learn pipeline
+├── data/
+│   └── WA_Fn-UseC_-Telco-Customer-Churn.csv     # Source dataset
+├── models/
+│   └── churn_model.pkl                          # Serialized fitted scikit-learn pipeline
 ├── app.py                                       # Streamlit application
-├── predict.py                                   # Input validation and single-customer scoring
-├── metrics.py                                   # Dataset loading, model comparison, thresholds
-├── explain.py                                   # Prediction explanation utilities
-├── recommendations.py                           # Rule-based retention recommendations
-├── segmentation.py                              # Customer segmentation utilities
-├── monitoring.py                                # Data-quality, drift, and labeled metrics
-├── ai_summary.py                                # Optional grounded summary generation
+├── src/
+│   ├── predict.py                               # Input validation and single-customer scoring
+│   ├── metrics.py                               # Dataset loading, model comparison, thresholds
+│   ├── explain.py                               # Prediction explanation utilities
+│   ├── recommendations.py                       # Rule-based retention recommendations
+│   ├── segmentation.py                          # Customer segmentation utilities
+│   ├── monitoring.py                            # Data-quality, drift, and labeled metrics
+│   └── ai_summary.py                            # Optional grounded summary generation
 ├── test_predict.py                              # Prediction validation tests
 ├── test_explain_and_recommendations.py          # Explanation and recommendation tests
 ├── test_segmentation_monitoring.py              # Segmentation and monitoring tests
@@ -169,10 +172,6 @@ streamlit run app.py
 
 Streamlit will print a local URL. If you want to reproduce the notebook, open `Customer_Churn_Project.ipynb` in Jupyter after installing the same dependencies.
 
-### Path alignment required in the current snapshot
-
-The checked-in `app.py`, `predict.py`, and test modules refer to package paths such as `src.predict` and to `models/churn_model.pkl`, but the corresponding Python files and `churn_model.pkl` are currently at the repository root. Before running the app or tests from a clean clone, either move the modules into a `src/` package and the model into `models/`, or update those imports and paths consistently. Do not mix both layouts, because the serialized pipeline and application must resolve to the same model artifact.
-
 ## Testing
 
 After resolving the path layout and installing the dependencies, run:
@@ -181,7 +180,7 @@ After resolving the path layout and installing the dependencies, run:
 pytest -q
 ```
 
-The tests cover input validation and prediction output, explanation and recommendation behavior, segmentation, data-quality checks, drift calculations, and labeled performance metrics. The current repository environment was inspected without changing application code; `pytest` was not installed in the analysis environment, so a clean test run should be performed after dependency installation.
+The tests cover input validation and prediction output, explanation and recommendation behavior, segmentation, data-quality checks, drift calculations, and labeled performance metrics.
 
 ## Limitations and responsible use
 

@@ -31,7 +31,7 @@ CUSTOMER = {
 
 
 def test_shap_explanation_contains_features():
-    model = load_model(Path(__file__).parents[1] / "models" / "churn_model.pkl")
+    model = load_model(Path(__file__).parent / "models" / "churn_model.pkl")
     feature_order = list(model.named_steps["preprocessor"].feature_names_in_)
     explanation = explain_prediction(model, pd.DataFrame([CUSTOMER])[feature_order])
     assert not explanation.empty

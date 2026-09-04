@@ -7,7 +7,7 @@ from src.predict import load_model, predict_customer
 
 @pytest.fixture(scope="module")
 def model():
-    return load_model(Path(__file__).parents[1] / "models" / "churn_model.pkl")
+    return load_model(Path(__file__).parent / "models" / "churn_model.pkl")
 
 
 @pytest.fixture
