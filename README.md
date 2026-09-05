@@ -308,6 +308,4 @@ The application should not be used to deny service, penalize customers, or make 
 [4]: [Ollama documentation](https://docs.ollama.com/)
 [5]: [IBM Telco Customer Churn dataset information](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)
 
-## Project title
 
-**Customer Churn Prediction Analysis**
